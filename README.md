@@ -1,14 +1,26 @@
-# 🐳 DOCKER-LOBBY: Панель управления контейнерами
+# 🐳 Docker Lobby: Your Container Dashboard
 
-**DOCKER-LOBBY** — это легковесная и стильная веб-панель на базе Flask и Docker SDK, предназначенная для быстрого мониторинга и управления локальными Docker-контейнерами через простой и интуитивно понятный веб-интерфейс.
+**Docker Lobby** is a lightweight, terminal-inspired web dashboard built with **Flask** and **Docker SDK**. It lets you monitor and control your local Docker containers in a fast and intuitive way — no messy terminals required.
 
-## 🚀 Основные возможности
+---
 
-* **Мониторинг в реальном времени:** Получение списка всех контейнеров (запущенных и остановленных) с обновлением каждые 3.5 секунды.
-* **Управление состоянием:** Запуск (`START`) и Остановка (`STOP`) контейнеров одной кнопкой.
-* **Инспекция:** Просмотр полных метаданных (`INSPECT`) и логов (`LOGS`) контейнера.
-* **Современный интерфейс:** Стильный (ну или не очень ) "терминальный" дизайн.
+## 🚀 Features
 
-## 🛠️ Структура проекта
+- **Real-time Monitoring:** Get a full list of all containers — running or stopped — with updates every 3.5 seconds.  
+- **One-Click Control:** Start or stop containers with a single button.  
+- **Inspect & Logs:** Check container metadata (`INSPECT`) and logs (`LOGS`) instantly.  
+- **Clean, Terminal-style UI:** Minimalist design focused on functionality.
 
-Проект использует Flask Blueprint для организации маршрутов и работает с Docker через библиотеку `docker-py`.
+---
+
+## 🛠 How It Works
+
+- Routes are organized using **Flask Blueprints**.  
+- Interacts directly with Docker via the **Docker SDK for Python (`docker-py`)**.  
+- Lightweight and ready to use on any machine running Docker.
+
+---
+
+## 💡 Why Docker Lobby?
+
+Because managing containers shouldn’t feel like a chore. Quick, simple, and effective — perfect for developers, sysadmins, or anyone who just wants things to work without fuss.
