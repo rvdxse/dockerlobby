@@ -1,9 +1,10 @@
 __pycache__/
 *.pyc
 .git
+.gitattributes
+.gitignore
 .venv
 node_modules
-.gitignore
 tests
 Dockerfile.test
 .pytest_cache/
@@ -12,3 +13,6 @@ Dockerfile.test
 docker-compose.yml
 CHANGELOG.md
 Dockerfile
+.vscode/
+.docker
+.dockerignore

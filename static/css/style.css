@@ -1,7 +1,26 @@
+@font-face {
+    font-family: 'JetBrainsMonoNF';
+    src: url('../fonts/JetBrainsMonoNLNerdFont-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap; 
+}
+
+@font-face {
+    font-family: 'JetBrainsMonoNF';
+    src: url('../fonts/JetBrainsMonoNLNerdFont-Regular.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+    .whale {
+        padding-right: 18px;
+    }
 /* background matrix effect */
     html,body{height:100%;margin:0;padding:0;}
     body{
-        font-family: "Consolas", "Courier New", monospace;
+        font-family: "JetBrainsMonoNF", "Consolas", "Courier New", monospace;
         background:#000;
         color:#88ff88;
         -webkit-font-smoothing:antialiased;
@@ -47,6 +66,7 @@
         box-shadow: 0 4px 20px rgba(0,255,128,0.02);
         font-weight:700;color:#00ff88;
         font-size:58px;
+        font-family: "JetBrainsMonoNF", "Consolas", monospace;
     }
     h1 {
         font-size:20px;

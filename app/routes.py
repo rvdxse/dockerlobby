@@ -15,7 +15,6 @@ def data():
     out = []
     for c in containers:
         try:
-            # Image
             image = None
             try:
                 if c.image and getattr(c.image, "tags", None):
@@ -24,8 +23,6 @@ def data():
                     image = c.image.short_id
             except Exception:
                 image = None
-
-            # Created
             created = None
             try:
                 created = c.attrs.get('Created')
