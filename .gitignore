@@ -52,6 +52,7 @@ coverage.xml
 cover/
 Dockerfile.test
 tests/
+*.excalidraw
 
 # Translations
 *.mo
