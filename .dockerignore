@@ -10,3 +10,5 @@ Dockerfile.test
 *.excalidraw
 *.md
 docker-compose.yml
+CHANGELOG.md
+Dockerfile
