@@ -1,0 +1,11 @@
+services:
+  docker_dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dashboard_container
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped

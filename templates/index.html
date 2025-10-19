@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>DOCKER::PANEL</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="matrix"></div>
+
+    <div class="shell">
+        <header>
+            <div class="logo"><p class="whale"></p></div>
+            <div>
+                <div id="typewriter-container">
+                    <h1 id="typed-text-header"></h1>
+                    <span id="header-cursor">&nbsp;</span> 
+                </div>
+                <div class="sub">Docker containers control panel</div>
+            </div>
+        </header>
+
+        <div id="container-grid" class="grid"></div>
+
+        <footer>
+            <div>Instance: <span class="ping" id="instance-time">—</span></div>
+            <div id="status-msg">Status: <strong>online</strong></div>
+        </footer>
+
+        <div class="scan"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
