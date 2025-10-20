@@ -46,11 +46,18 @@ function render(list) {
         const image = c.image || '-';
         const cpuPercent = c.cpu_percent || 'N/A';
         const memUsage = c.mem_usage || 'N/A';
+
+        const cpuHTML = (cpuPercent !== 'N/A') ? ` <br>CPU: ${cpuPercent}` : '';
+        const ramHTML = (memUsage !== 'N/A') ? ` <br>RAM: ${memUsage}` : '';
         return `
             <div class="card" data-id="${c.id}">
                 <div class="cid">${c.short_id}</div>
                 <div class="name">${shortText(c.name)}</div>
-                <div class="meta">Image: ${shortText(image)} <br>Created: ${readableCreated} <br>CPU: ${cpuPercent} <br>RAM: ${memUsage}</div>
+                <div class="meta">Image: ${shortText(image)} 
+                    <br>Created: ${readableCreated} 
+                    ${cpuHTML} 
+                    ${ramHTML}
+                </div>
                 <div class="status ${stateClass}">${c.status.toUpperCase()}</div>
 
                 <div class="actions">
