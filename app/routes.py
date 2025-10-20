@@ -45,7 +45,7 @@ def calculate_mem_usage(stats):
     }
 
 bp = Blueprint('main', __name__)
-client = docker.from_env()
+client = docker.from_env(timeout=30)
 
 @bp.route("/")
 def index():
@@ -79,6 +79,7 @@ def data():
                     mem_data = calculate_mem_usage(stats)
                     mem_info = f"{mem_data['usage']} / {mem_data['limit']}"
                 except Exception as e:
+                    print(f"Error for {c.name}: {e}")
                     pass
 
             out.append({
