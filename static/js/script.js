@@ -47,8 +47,8 @@ function render(list) {
         const cpuPercent = c.cpu_percent || 'N/A';
         const memUsage = c.mem_usage || 'N/A';
 
-        const cpuHTML = (cpuPercent !== 'N/A') ? ` <br>CPU: ${cpuPercent}` : '';
-        const ramHTML = (memUsage !== 'N/A') ? ` <br>RAM: ${memUsage}` : '';
+        const cpuHTML = (cpuPercent !== 'N/A') ? ` <br>CPU: ${cpuPercent}` : '<br>&nbsp;';
+        const ramHTML = (memUsage !== 'N/A') ? ` <br>RAM: ${memUsage}` : '<br>&nbsp;';
         return `
             <div class="card" data-id="${c.id}">
                 <div class="cid">${c.short_id}</div>
