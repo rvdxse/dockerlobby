@@ -44,11 +44,13 @@ function render(list) {
         const stateClass = (c.status==='running') ? 'running' : 'exited';
         const readableCreated = c.created ? new Date(c.created).toLocaleString() : '-';
         const image = c.image || '-';
+        const cpuPercent = c.cpu_percent || 'N/A';
+        const memUsage = c.mem_usage || 'N/A';
         return `
             <div class="card" data-id="${c.id}">
                 <div class="cid">${c.short_id}</div>
                 <div class="name">${shortText(c.name)}</div>
-                <div class="meta">Image: ${shortText(image)} · Created: ${readableCreated}</div>
+                <div class="meta">Image: ${shortText(image)} <br>Created: ${readableCreated} <br>CPU: ${cpuPercent} <br>RAM: ${memUsage}</div>
                 <div class="status ${stateClass}">${c.status.toUpperCase()}</div>
 
                 <div class="actions">
