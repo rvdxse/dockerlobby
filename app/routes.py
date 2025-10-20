@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template, jsonify, request
+from flask import Blueprint, render_template, jsonify, request, Response
 import docker
 from datetime import datetime
+from functools import wraps
 
 bp = Blueprint('main', __name__)
 client = docker.from_env()
@@ -41,7 +42,24 @@ def data():
             continue
     return jsonify(out)
 
+def check_auth(username, password):
+    return username == 'admin' and password == 'secret'
+
+def authenticate():
+    return Response('Please provide valid credentials', 401,
+                    {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
 @bp.route("/start/<cid>", methods=["POST"])
+@requires_auth
 def start_container(cid):
     try:
         client.containers.get(cid).start()
@@ -50,6 +68,7 @@ def start_container(cid):
         return jsonify({'ok': False, 'error': str(e)}), 500
 
 @bp.route("/stop/<cid>", methods=["POST"])
+@requires_auth
 def stop_container(cid):
     try:
         client.containers.get(cid).stop()
