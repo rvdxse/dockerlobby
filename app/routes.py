@@ -10,6 +10,7 @@ client = docker.from_env()
 def index():
     return render_template('index.html')
 
+#TODO: Add CPU and RAM statistics
 @bp.route("/data")
 def data():
     containers = client.containers.list(all=True)

@@ -92,6 +92,7 @@ async function action(id, cmd) {
     }
 }
 
+// FIXME: rewrite logic for webhooks instead of fetch intervals
 fetchContainers();
 initTypewriterHeader(); 
 setInterval(fetchContainers, 3500);
