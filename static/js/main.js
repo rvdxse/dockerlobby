@@ -1,5 +1,4 @@
 import { initTypewriterHeader } from './modules/typewriter.js';
-import { fetchContainers } from './modules/api.js';
 import { render, bindActions } from './modules/ui.js';
 import { showStatusOffline, showStatusOnline } from './modules/utils.js';
 
