@@ -26,23 +26,28 @@ def requires_auth(f):
 @bp.route('/events')
 def events():
     app = current_app._get_current_object()
+    max_iter = getattr(app, 'TEST_MODE_MAX_ITER', None)
 
     @stream_with_context
     def generate():
+        count = 0
         while True:
             try:
-                with app.app_context():
-                    containers = app.container_manager.list_containers()
-                    yield f"data: {json.dumps(containers)}\n\n"
+                containers = app.container_manager.list_containers()
+                yield f"data: {json.dumps(containers)}\n\n"
             except Exception as e:
                 yield f"data: {json.dumps({'error': str(e)})}\n\n"
+
+            count += 1
+            if max_iter is not None and count >= max_iter:
+                break
+
             time.sleep(3)
 
     response = Response(generate(), mimetype='text/event-stream')
     response.headers['Cache-Control'] = 'no-cache'
     response.headers['X-Accel-Buffering'] = 'no'
     return response
-
 
 @bp.route("/")
 def index():

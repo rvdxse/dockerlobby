@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from app import create_app
 
 @pytest.fixture
@@ -56,3 +56,19 @@ def test_logs_route(client):
     resp = client.get('/logs/123')
     assert resp.status_code == 200
     assert b"log output" in resp.data
+
+def test_events_route(client):
+    import json
+
+    app = client.application
+    app.TEST_MODE_MAX_ITER = 3
+    resp = client.get('/events', buffered=True)
+    assert resp.status_code == 200
+    assert resp.headers['Content-Type'].startswith('text/event-stream')
+
+    first_chunk = resp.response[0] 
+    if isinstance(first_chunk, bytes):
+        first_chunk = first_chunk.decode()
+    data_json = json.loads(first_chunk.replace("data: ", ""))
+    assert isinstance(data_json, list)
+
