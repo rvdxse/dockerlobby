@@ -6,4 +6,9 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
-CMD ["python", "-u", "run.py"]
+ENTRYPOINT ["gunicorn", \
+            "--bind", "0.0.0.0:8080", \
+            "--workers", "4", \
+            "--worker-class", "gthread", \
+            "--threads", "2", \
+            "run:app"]
