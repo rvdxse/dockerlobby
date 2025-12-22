@@ -13,6 +13,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Set SHORT_SHA
+      id: vars
+      run: echo "short_sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -41,8 +45,8 @@ jobs:
 
     - name: Build Docker image
       run: |
-        SHORT_SHA=${GITHUB_SHA::7}
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/dockerlobby:$SHORT_SHA .
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/dockerlobby:${{ steps.vars.outputs.short_sha }} .
 
     - name: Push Docker image
-      run: docker push ${{ secrets.DOCKER_USERNAME }}/dockerlobby:$SHORT_SHA
+      run: |
+        docker push ${{ secrets.DOCKER_USERNAME }}/dockerlobby:${{ steps.vars.outputs.short_sha }}
