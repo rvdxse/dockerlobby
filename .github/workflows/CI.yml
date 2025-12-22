@@ -40,7 +40,9 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build Docker image
-      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/dockerlobby:latest .
+      run: |
+        SHORT_SHA=${GITHUB_SHA::7}
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/dockerlobby:$SHORT_SHA .
 
     - name: Push Docker image
-      run: docker push ${{ secrets.DOCKER_USERNAME }}/dockerlobby:latest
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/dockerlobby:$SHORT_SHA
