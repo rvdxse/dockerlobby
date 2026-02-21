@@ -3,7 +3,7 @@ services:
     image: ghcr.io/rvdxse/dockerlobby:${BOT_IMAGE_TAG:-latest}
     container_name: dashboard_container
     ports:
-      - "8080:8080"
+      - "80:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped

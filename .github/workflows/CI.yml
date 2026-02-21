@@ -95,14 +95,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.REGISTRY_TOKEN }}
 
-      - name: Build and Load (Local)
+      - name: Build and Push (temp)
         uses: docker/build-push-action@v5
         with:
           context: .
-          load: true
+          platforms: linux/arm/v7
+          push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:temp
-          cache-to: type=gha,mode=max
           cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Trivy image scan
         uses: aquasecurity/trivy-action@0.28.0
@@ -111,15 +112,11 @@ jobs:
           severity: 'CRITICAL,HIGH'
           exit-code: '1'
 
-      - name: Build and Push (Final)
+      - name: Push final tags
         if: success()
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          platforms: linux/arm/v7
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          cache-from: type=gha
-          
+        run: |
+          docker buildx imagetools create \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:temp \
+            --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+                
