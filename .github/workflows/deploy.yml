@@ -35,7 +35,7 @@ jobs:
         run: echo "COMPOSE_B64=$(base64 -w 0 docker-compose.yml)" >> $GITHUB_ENV
 
       - name: Deploy
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ secrets.RPI_ZT_IP }}
           username: ${{ secrets.RPI_USER }}
