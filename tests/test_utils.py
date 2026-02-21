@@ -1,4 +1,3 @@
-import pytest
 from app.utils import format_bytes, calculate_cpu_percent, calculate_mem_usage
 
 def test_format_bytes_basic():
