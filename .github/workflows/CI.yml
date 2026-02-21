@@ -69,57 +69,65 @@ jobs:
           scan-type: 'fs'
           severity: 'CRITICAL,HIGH'
           exit-code: '1'
+
   docker:
-    runs-on: ubuntu-latest
-    needs: [lint, tests, pip-audit, trivy-fs]
+      runs-on: ubuntu-latest
+      needs: [lint, tests, pip-audit, trivy-fs]
+      permissions:
+        contents: read
+        packages: write
 
-    permissions:
-      contents: read
-      packages: write
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
 
-    steps:
+        - name: Set up QEMU
+          uses: docker/setup-qemu-action@v3
 
-      - name: Checkout repository
-        uses: actions/checkout@v6
+        - name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v3
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        - name: Log in to GHCR
+          uses: docker/login-action@v3
+          with:
+            registry: ${{ env.REGISTRY }}
+            username: ${{ secrets.RPI_USER }} 
+            password: ${{ secrets.REGISTRY_TOKEN }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        - name: Cache Trivy DB
+          uses: actions/cache@v4
+          with:
+            path: .cache/trivy
+            key: ${{ runner.os }}-trivy-db
+            restore-keys: ${{ runner.os }}-trivy-
 
-      - name: Log in to the Container registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ secrets.RPI_USER }}
-          password: ${{ secrets.REGISTRY_TOKEN }}
+        - name: Build and load for scan
+          uses: docker/build-push-action@v6
+          with:
+            context: .
+            platforms: linux/arm/v7
+            load: true 
+            tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:temp
+            cache-from: type=gha,mode=max
+            cache-to: type=gha,mode=max
 
-      - name: Build and Push (temp)
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          platforms: linux/arm/v7
-          push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:temp
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+        - name: Trivy image scan
+          uses: aquasecurity/trivy-action@0.28.0
+          with:
+            image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:temp
+            severity: 'CRITICAL,HIGH'
+            exit-code: '1'
+            cache-dir: .cache/trivy
 
-      - name: Pull image for scan
-        run: docker pull --platform linux/arm/v7 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:temp
-
-      - name: Trivy image scan
-        uses: aquasecurity/trivy-action@0.34.1
-        with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:temp
-          severity: 'CRITICAL,HIGH'
-          exit-code: '1'
-
-      - name: Push final tags
-        if: success()
-        run: |
-          docker buildx imagetools create \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:temp \
-            --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-                
+        - name: Build and push final
+          if: success()
+          uses: docker/build-push-action@v6
+          with:
+            context: .
+            platforms: linux/arm/v7
+            push: true
+            tags: |
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            cache-from: type=gha,mode=max
+                  
