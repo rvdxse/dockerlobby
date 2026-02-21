@@ -1,4 +1,4 @@
-FROM python:3.11-alpine AS builder
+FROM python:3.14-alpine AS builder
 
 WORKDIR /build
 
@@ -9,7 +9,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip wheel setuptools && \
     pip install --no-cache-dir --user -r requirements.txt
 
-FROM python:3.11-alpine
+FROM python:3.14-alpine
 
 ARG DOCKER_GID=985
 
