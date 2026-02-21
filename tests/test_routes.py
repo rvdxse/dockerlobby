@@ -22,20 +22,19 @@ def test_index_route(client):
     assert b"html" in resp.data or b"HTML" in resp.data
 
 def test_data_route(client):
-    resp = client.get('/data')
+    auth = {"Authorization": "Basic YWRtaW46cGFzc3dvcmQ="}
+    resp = client.get('/data', headers=auth)
     assert resp.status_code == 200
     assert resp.is_json
     assert isinstance(resp.get_json(), list)
 
 def test_start_stop_routes_auth(client):
-    # Без авторизации
     resp = client.post('/start/123')
     assert resp.status_code == 401
 
     resp = client.post('/stop/123')
     assert resp.status_code == 401
 
-    # С авторизацией
     headers = {"Authorization": "Basic YWRtaW46cGFzc3dvcmQ="}
     resp = client.post('/start/123', headers=headers)
     assert resp.status_code == 200
@@ -46,23 +45,25 @@ def test_start_stop_routes_auth(client):
     assert resp.get_json()['ok'] is True
 
 def test_inspect_route(client):
-    resp = client.get('/inspect/123')
+    auth = {"Authorization": "Basic YWRtaW46cGFzc3dvcmQ="}
+    resp = client.get('/inspect/123', headers=auth)
     assert resp.status_code == 200
     data = resp.get_json()
     assert "id" in data
     assert data["name"] == "demo"
 
 def test_logs_route(client):
-    resp = client.get('/logs/123')
+    auth = {"Authorization": "Basic YWRtaW46cGFzc3dvcmQ="}
+    resp = client.get('/logs/123', headers=auth)
     assert resp.status_code == 200
     assert b"log output" in resp.data
 
 def test_events_route(client):
     import json
-
+    auth = {"Authorization": "Basic YWRtaW46cGFzc3dvcmQ="}
     app = client.application
     app.TEST_MODE_MAX_ITER = 3
-    resp = client.get('/events', buffered=True)
+    resp = client.get('/events', headers=auth, buffered=True)
     assert resp.status_code == 200
     assert resp.headers['Content-Type'].startswith('text/event-stream')
 
@@ -71,4 +72,3 @@ def test_events_route(client):
         first_chunk = first_chunk.decode()
     data_json = json.loads(first_chunk.replace("data: ", ""))
     assert isinstance(data_json, list)
-
