@@ -57,7 +57,7 @@ jobs:
       - name: Install pip-audit
         run: pip install pip-audit
       - name: Run audit
-        run: pip-audit --strict --ignore-package bcc
+        run: pip-audit -r requirements.txt --strict
     
   trivy-fs:
     runs-on: ubuntu-latest
