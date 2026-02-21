@@ -24,6 +24,7 @@ def requires_auth(f):
     return decorated
 
 @bp.route('/events')
+@requires_auth
 def events():
     app = current_app._get_current_object()
     max_iter = getattr(app, 'TEST_MODE_MAX_ITER', None)
@@ -35,8 +36,8 @@ def events():
             try:
                 containers = app.container_manager.list_containers()
                 yield f"data: {json.dumps(containers)}\n\n"
-            except Exception as e:
-                yield f"data: {json.dumps({'error': str(e)})}\n\n"
+            except Exception:
+                yield f"data: {json.dumps({'error': 'Internal stream error'})}\n\n"
 
             count += 1
             if max_iter is not None and count >= max_iter:
@@ -54,12 +55,13 @@ def index():
     return render_template('index.html')
 
 @bp.route("/data")
+@requires_auth
 def data():
     try:
         out = current_app.container_manager.list_containers()
         return jsonify(out)
-    except Exception as e:
-        return jsonify({'ok': False, 'error': "Docker service error: " + str(e)}), 500
+    except Exception:
+        return jsonify({'ok': False, 'error': "Docker service error"}), 500
 
 @bp.route("/start/<cid>", methods=["POST"])
 @requires_auth
@@ -67,8 +69,8 @@ def start_container(cid):
     try:
         current_app.container_manager.start_container(cid)
         return jsonify({'ok': True})
-    except Exception as e:
-        return jsonify({'ok': False, 'error': str(e)}), 500
+    except Exception:
+        return jsonify({'ok': False, 'error': "Failed to start container"}), 500
 
 @bp.route("/stop/<cid>", methods=["POST"])
 @requires_auth
@@ -76,21 +78,23 @@ def stop_container(cid):
     try:
         current_app.container_manager.stop_container(cid)
         return jsonify({'ok': True})
-    except Exception as e:
-        return jsonify({'ok': False, 'error': str(e)}), 500
+    except Exception:
+        return jsonify({'ok': False, 'error': "Failed to stop container"}), 500
 
 @bp.route("/inspect/<cid>")
+@requires_auth
 def inspect_container(cid):
     try:
         attrs = current_app.container_manager.get_container_details(cid)
         return jsonify(attrs)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    except Exception:
+        return jsonify({'error': "Inspection failed"}), 500
 
 @bp.route("/logs/<cid>")
+@requires_auth
 def logs(cid):
     try:
         text = current_app.container_manager.get_container_logs(cid)
         return Response(text, mimetype='text/plain')
-    except Exception as e:
-        return str(e), 500
+    except Exception:
+        return "Internal Server Error: Could not retrieve logs", 500
