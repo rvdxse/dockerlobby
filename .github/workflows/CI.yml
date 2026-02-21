@@ -101,10 +101,11 @@ jobs:
           context: .
           load: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:temp
+          cache-to: type=gha,mode=max
           cache-from: type=gha
 
       - name: Trivy image scan
-        uses: aquasecurity/trivy-action@0.20.0
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:temp
           severity: 'CRITICAL,HIGH'
@@ -121,4 +122,4 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          
