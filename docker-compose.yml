@@ -1,8 +1,6 @@
 services:
   docker_dashboard:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/rvdxse/dockerlobby:${BOT_IMAGE_TAG:-latest}
     container_name: dashboard_container
     ports:
       - "8080:8080"
