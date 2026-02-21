@@ -105,6 +105,9 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Pull image for scan
+        run: docker pull --platform linux/arm/v7 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:temp
+
       - name: Trivy image scan
         uses: aquasecurity/trivy-action@0.28.0
         with:
