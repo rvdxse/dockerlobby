@@ -231,13 +231,11 @@ jobs:
           uses: docker/build-push-action@v6
           with:
             context: .
+            platforms: linux/arm/v7
             load: true
             tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:temp
             cache-from: type=gha,mode=max
             cache-to: type=gha,mode=max
-            outputs: type=local,dest=out/
-            sbom: true
-            provenance: true
         - name: Trivy image scan
           if: needs.changes.outputs.python_deps == 'true' || needs.changes.outputs.docker == 'true'
           uses: aquasecurity/trivy-action@0.34.1
@@ -288,24 +286,6 @@ jobs:
             subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
             subject-digest: ${{ steps.push-step.outputs.digest }}
             push-to-registry: true
-        - name: Attest SBOM
-          if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-          uses: actions/attest-sbom@v2
-          with:
-                subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-                subject-digest: ${{ steps.push-step.outputs.digest }}
-                sbom-path: 'out/sbom.spdx.json'
-                push-to-registry: true
-        - name: Attest Vulnerability Scan
-          if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-          uses: actions/attest@v1
-          with:
-                subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-                subject-digest: ${{ steps.push-step.outputs.digest }}
-                predicate-path: 'trivy-image.sarif'
-                predicate-type: 'https://cosign.sigstore.dev'
-                push-to-registry: true
-
 
  cleanup:
         runs-on: ubuntu-24.04-arm
