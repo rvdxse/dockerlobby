@@ -126,6 +126,7 @@ jobs:
                 exit-code: "1"
                 format: "sarif"
                 output: "trivy-fs.sarif"
+                limit-severities-for-sarif: true
         - name: Upload Trivy results to GitHub Security tab
           if: always() && hashFiles('trivy-fs.sarif') != ''
           uses: github/codeql-action/upload-sarif@v3
@@ -168,6 +169,7 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
  analyze:
   runs-on: ubuntu-latest
+  if: needs.changes.outputs.docker == 'true'
   permissions:
     security-events: write
     contents: read
@@ -242,6 +244,7 @@ jobs:
             cache-dir: .cache/trivy
             format: "sarif"
             output: "trivy-image.sarif"
+            limit-severities-for-sarif: true
             
         - name: Upload Trivy image results to GitHub Security tab
           if: always() && hashFiles('trivy-image.sarif') != ''
