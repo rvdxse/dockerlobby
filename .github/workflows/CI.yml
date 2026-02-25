@@ -231,12 +231,11 @@ jobs:
           uses: docker/build-push-action@v6
           with:
             context: .
-            platforms: linux/arm/v7
             load: true
             tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:temp
             cache-from: type=gha,mode=max
             cache-to: type=gha,mode=max
-            outputs: "type=local,dest=out/"
+            outputs: type=local,dest=out/
             sbom: true
             provenance: true
         - name: Trivy image scan
