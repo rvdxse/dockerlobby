@@ -33,7 +33,6 @@ class DockerManager:
                         mem_info = f"{mem_data['usage']} / {mem_data['limit']}"
                     except Exception as e:
                         print(f"Error fetching stats for {c.name}: {e}")
-                        pass
 
                 out.append(
                     {
