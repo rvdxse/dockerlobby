@@ -1,5 +1,6 @@
 from .utils import calculate_cpu_percent, calculate_mem_usage
 
+
 class DockerManager:
     def __init__(self, client):
         self.client = client
@@ -12,19 +13,19 @@ class DockerManager:
                 return container.image.short_id
         except Exception:
             return None
-    
+
     def list_containers(self):
         containers = self.client.containers.list(all=True)
         out = []
         for c in containers:
             try:
                 image = self._get_image_name(c)
-                created = c.attrs.get('Created')
-                
+                created = c.attrs.get("Created")
+
                 cpu_percent = "N/A"
                 mem_info = "N/A"
 
-                if c.status == 'running':
+                if c.status == "running":
                     try:
                         stats = self.client.containers.get(c.id).stats(stream=False)
                         cpu_percent = calculate_cpu_percent(stats)
@@ -33,17 +34,19 @@ class DockerManager:
                     except Exception as e:
                         print(f"Error fetching stats for {c.name}: {e}")
                         pass
-                
-                out.append({
-                    'id': c.id,
-                    'short_id': c.short_id,
-                    'name': c.name,
-                    'status': c.status,
-                    'image': image,
-                    'created': created,
-                    'cpu_percent': cpu_percent,
-                    'mem_usage': mem_info
-                })
+
+                out.append(
+                    {
+                        "id": c.id,
+                        "short_id": c.short_id,
+                        "name": c.name,
+                        "status": c.status,
+                        "image": image,
+                        "created": created,
+                        "cpu_percent": cpu_percent,
+                        "mem_usage": mem_info,
+                    }
+                )
             except Exception as ex:
                 print(f"Error processing container {c.id}: {ex}")
                 continue
@@ -51,21 +54,23 @@ class DockerManager:
 
     def start_container(self, cid):
         self.client.containers.get(cid).start()
-        
+
     def stop_container(self, cid):
         self.client.containers.get(cid).stop()
 
     def get_container_details(self, cid):
         c = self.client.containers.get(cid)
         return {
-            'id': c.id,
-            'name': c.name,
-            'status': c.status,
-            'image': self._get_image_name(c),
-            'created': c.attrs.get('Created'),
-            'labels': c.labels if hasattr(c, 'labels') else c.attrs.get('Config', {}).get('Labels', {})
+            "id": c.id,
+            "name": c.name,
+            "status": c.status,
+            "image": self._get_image_name(c),
+            "created": c.attrs.get("Created"),
+            "labels": c.labels
+            if hasattr(c, "labels")
+            else c.attrs.get("Config", {}).get("Labels", {}),
         }
 
     def get_container_logs(self, cid, tail=500):
         c = self.client.containers.get(cid)
-        return c.logs(tail=tail).decode('utf-8', errors='replace')
+        return c.logs(tail=tail).decode("utf-8", errors="replace")

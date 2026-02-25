@@ -1,18 +1,34 @@
-from flask import Blueprint, render_template, jsonify, request, Response, current_app, stream_with_context
-from functools import wraps
 import json
 import time
+from functools import wraps
 
-bp = Blueprint('main', __name__)
+from flask import (
+    Blueprint,
+    Response,
+    current_app,
+    jsonify,
+    render_template,
+    request,
+    stream_with_context,
+)
+
+bp = Blueprint("main", __name__)
+
 
 def check_auth(username, password):
     config = current_app.config
-    return (username == config.get('BASIC_AUTH_USERNAME') and 
-            password == config.get('BASIC_AUTH_PASSWORD'))
+    return username == config.get("BASIC_AUTH_USERNAME") and password == config.get(
+        "BASIC_AUTH_PASSWORD"
+    )
+
 
 def authenticate():
-    return Response('Please provide valid credentials', 401,
-                    {'WWW-Authenticate': 'Basic realm="Login Required"'})
+    return Response(
+        "Please provide valid credentials",
+        401,
+        {"WWW-Authenticate": 'Basic realm="Login Required"'},
+    )
+
 
 def requires_auth(f):
     @wraps(f)
@@ -21,13 +37,15 @@ def requires_auth(f):
         if not auth or not check_auth(auth.username, auth.password):
             return authenticate()
         return f(*args, **kwargs)
+
     return decorated
 
-@bp.route('/events')
+
+@bp.route("/events")
 @requires_auth
 def events():
     app = current_app._get_current_object()
-    max_iter = getattr(app, 'TEST_MODE_MAX_ITER', None)
+    max_iter = getattr(app, "TEST_MODE_MAX_ITER", None)
 
     @stream_with_context
     def generate():
@@ -45,14 +63,16 @@ def events():
 
             time.sleep(3)
 
-    response = Response(generate(), mimetype='text/event-stream')
-    response.headers['Cache-Control'] = 'no-cache'
-    response.headers['X-Accel-Buffering'] = 'no'
+    response = Response(generate(), mimetype="text/event-stream")
+    response.headers["Cache-Control"] = "no-cache"
+    response.headers["X-Accel-Buffering"] = "no"
     return response
+
 
 @bp.route("/")
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
+
 
 @bp.route("/data")
 @requires_auth
@@ -61,25 +81,28 @@ def data():
         out = current_app.container_manager.list_containers()
         return jsonify(out)
     except Exception:
-        return jsonify({'ok': False, 'error': "Docker service error"}), 500
+        return jsonify({"ok": False, "error": "Docker service error"}), 500
+
 
 @bp.route("/start/<cid>", methods=["POST"])
 @requires_auth
 def start_container(cid):
     try:
         current_app.container_manager.start_container(cid)
-        return jsonify({'ok': True})
+        return jsonify({"ok": True})
     except Exception:
-        return jsonify({'ok': False, 'error': "Failed to start container"}), 500
+        return jsonify({"ok": False, "error": "Failed to start container"}), 500
+
 
 @bp.route("/stop/<cid>", methods=["POST"])
 @requires_auth
 def stop_container(cid):
     try:
         current_app.container_manager.stop_container(cid)
-        return jsonify({'ok': True})
+        return jsonify({"ok": True})
     except Exception:
-        return jsonify({'ok': False, 'error': "Failed to stop container"}), 500
+        return jsonify({"ok": False, "error": "Failed to stop container"}), 500
+
 
 @bp.route("/inspect/<cid>")
 @requires_auth
@@ -88,13 +111,14 @@ def inspect_container(cid):
         attrs = current_app.container_manager.get_container_details(cid)
         return jsonify(attrs)
     except Exception:
-        return jsonify({'error': "Inspection failed"}), 500
+        return jsonify({"error": "Inspection failed"}), 500
+
 
 @bp.route("/logs/<cid>")
 @requires_auth
 def logs(cid):
     try:
         text = current_app.container_manager.get_container_logs(cid)
-        return Response(text, mimetype='text/plain')
+        return Response(text, mimetype="text/plain")
     except Exception:
         return "Internal Server Error: Could not retrieve logs", 500

@@ -90,6 +90,9 @@ jobs:
       needs.changes.outputs.python_code == 'true' ||
       needs.changes.outputs.ansible == 'true'
     runs-on: ubuntu-24.04-arm
+    permissions:
+        security-events: write
+        contents: read
     steps:
         - uses: actions/checkout@v6
         - name: Install uv
@@ -164,7 +167,7 @@ jobs:
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
  analyze:
-  runs-on: ubuntu-24.04-arm
+  runs-on: ubuntu-latest
   permissions:
     security-events: write
     contents: read
@@ -195,7 +198,7 @@ jobs:
       permissions:
         contents: read
         packages: write
-
+        security-events: write
       steps:
         - name: Checkout repository
           uses: actions/checkout@v6
