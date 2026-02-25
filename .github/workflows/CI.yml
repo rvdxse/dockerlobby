@@ -236,6 +236,9 @@ jobs:
             tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:temp
             cache-from: type=gha,mode=max
             cache-to: type=gha,mode=max
+            outputs: "type=local,dest=out/"
+            sbom: true
+            provenance: true
         - name: Trivy image scan
           if: needs.changes.outputs.python_deps == 'true' || needs.changes.outputs.docker == 'true'
           uses: aquasecurity/trivy-action@0.34.1
@@ -292,7 +295,7 @@ jobs:
           with:
                 subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
                 subject-digest: ${{ steps.push-step.outputs.digest }}
-                sbom-path: 'bin/sbom.spdx.json'
+                sbom-path: 'out/sbom.spdx.json'
                 push-to-registry: true
         - name: Attest Vulnerability Scan
           if: github.event_name == 'push' && github.ref == 'refs/heads/main'
