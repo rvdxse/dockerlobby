@@ -27,6 +27,7 @@ RUN addgroup -g $DOCKER_GID docker_host && \
 COPY --from=builder --chown=botuser:botuser /root/.local /home/botuser/.local
 
 COPY --chown=botuser:botuser requirements.txt .
+
 COPY --chown=botuser:botuser . .
 
 USER botuser

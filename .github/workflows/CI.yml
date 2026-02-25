@@ -286,6 +286,24 @@ jobs:
             subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
             subject-digest: ${{ steps.push-step.outputs.digest }}
             push-to-registry: true
+        - name: Attest SBOM
+          if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+          uses: actions/attest-sbom@v2
+          with:
+                subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+                subject-digest: ${{ steps.push-step.outputs.digest }}
+                sbom-path: 'bin/sbom.spdx.json'
+                push-to-registry: true
+        - name: Attest Vulnerability Scan
+          if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+          uses: actions/attest@v1
+          with:
+                subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+                subject-digest: ${{ steps.push-step.outputs.digest }}
+                predicate-path: 'trivy-image.sarif'
+                predicate-type: 'https://cosign.sigstore.dev'
+                push-to-registry: true
+
 
  cleanup:
         runs-on: ubuntu-24.04-arm
