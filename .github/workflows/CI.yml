@@ -169,7 +169,7 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
  analyze:
   runs-on: ubuntu-latest
-  if: needs.changes.outputs.docker == 'true'
+  if: needs.changes.outputs.python_code == 'true'
   permissions:
     security-events: write
     contents: read

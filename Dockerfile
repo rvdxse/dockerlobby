@@ -20,7 +20,6 @@ ENV PYTHONUNBUFFERED=1 \
     PATH=/home/botuser/.local/bin:$PATH
 
 WORKDIR /app
-
 RUN addgroup -g $DOCKER_GID docker_host && \
     adduser -D botuser && \
     addgroup botuser docker_host
