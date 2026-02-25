@@ -1,0 +1,2 @@
+[raspberry]
+rpi3b ansible_host={{ RPI_HOST }} ansible_user={{ RPI_USER }}

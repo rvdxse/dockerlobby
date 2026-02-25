@@ -1,0 +1,50 @@
+- name: Deploy dockerlobby
+  hosts: raspberry
+  vars:
+    app_dir: ~/dockerlobby
+
+  tasks:
+    - name: Create app directory
+      ansible.builtin.file:
+        path: "{{ app_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Copy docker-compose.yml
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker-compose.yml"
+        dest: "{{ app_dir }}/docker-compose.yml"
+        mode: '0644'
+
+    - name: Login to GHCR
+      community.docker.docker_login:
+        registry: ghcr.io
+        username: "{{ registry_user }}"
+        password: "{{ registry_token }}"
+
+    - name: Pull latest image
+      community.docker.docker_compose_v2_pull:
+        project_src: "{{ app_dir }}"
+
+    - name: Start app
+      community.docker.docker_compose_v2:
+        project_src: "{{ app_dir }}"
+        remove_orphans: true
+        state: present
+
+    - name: Gather system stats
+      ansible.builtin.shell: |
+        set -o pipefail
+        echo "$(uptime -p)"
+        echo "$(free -m | awk 'NR==2{printf "Memory: %s/%sMB (%.2f%%)", $3,$2,$3*100/$2 }')"
+        echo "CPU Load: $(cat /proc/loadavg | awk '{print $1}')"
+      register: system_stats
+      changed_when: false
+
+    - name: Print report
+      ansible.builtin.debug:
+        msg: |
+          🚀 Deployment Successful!
+          ⏱ {{ system_stats.stdout_lines[0] }}
+          📊 {{ system_stats.stdout_lines[1] }}
+          🔥 {{ system_stats.stdout_lines[2] }}

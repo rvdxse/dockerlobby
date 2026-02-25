@@ -1,6 +1,7 @@
 name: Deploy
 
 on:
+  workflow_dispatch:
   workflow_run:
     workflows: ["CI Pipeline"]
     types:
@@ -8,13 +9,18 @@ on:
 
 jobs:
   deploy:
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
-    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-24.04-arm
+    environment: production
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-
+      - name: Install ansible collections
+        run: ansible-galaxy collection install -r ansible/requirements.yml
       - name: Join ZeroTier Network
         uses: zerotier/github-action@v1.0.3
         with:
@@ -28,24 +34,18 @@ jobs:
             echo "Attempt $i failed, retrying..."
             sleep 5
           done
-
-      - name: Encode compose file
-        run: echo "COMPOSE_B64=$(base64 -w 0 docker-compose.yml)" >> $GITHUB_ENV
-
+      - name: Generate inventory
+        run: |
+            sed "s/{{ RPI_HOST }}/${{ secrets.RPI_ZT_IP }}/g; \
+                s/{{ RPI_USER }}/${{ secrets.RPI_USER }}/g" \
+            ansible/inventory/hosts.ini.template > ansible/inventory/hosts.ini
       - name: Deploy
-        uses: appleboy/ssh-action@v1.2.5
+        id: ansible_deploy
+        uses: dawidd6/action-ansible-playbook@v7
         with:
-          host: ${{ secrets.RPI_ZT_IP }}
-          username: ${{ secrets.RPI_USER }}
+          playbook: ansible/playbooks/deploy.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          envs: COMPOSE_B64
-          script: |
-            mkdir -p ~/dockerlobby
-            echo "$COMPOSE_B64" | base64 -d > ~/dockerlobby/docker-compose.yml
-            echo "LOBBY_IMAGE_TAG=${{ github.sha }}" > ~/dockerlobby/.env
-            cd ~/dockerlobby
-            echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ghcr.io -u ${{ secrets.RPI_USER }} --password-stdin
-            docker compose pull
-            docker compose up -d --remove-orphans
-        env:
-          COMPOSE_B64: ${{ env.COMPOSE_B64 }}
+          options: |
+            -i ansible/inventory/hosts.ini
+            -e registry_token=${{ secrets.REGISTRY_TOKEN }}
+            -e registry_user=${{ github.repository_owner }}
