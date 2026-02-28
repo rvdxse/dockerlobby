@@ -1,4 +1,4 @@
-FROM python:3.12-alpine AS builder
+FROM python:3.14-alpine AS builder
 
 WORKDIR /build
 
@@ -9,7 +9,7 @@ COPY requirements.txt .
 RUN pip install --user --no-cache-dir --upgrade pip && \
     pip install --user --no-cache-dir -r requirements.txt
 
-FROM python:3.12-alpine
+FROM python:3.14-alpine
 
 ARG DOCKER_GID=985
 
